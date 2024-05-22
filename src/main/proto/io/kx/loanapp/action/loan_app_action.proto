@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "kalix/annotations.proto";
+
+import "io/kx/loanapp/api/loan_app_api.proto";
+import "io/kx/loanapp/domain/loan_app_domain.proto";
+
+package io.kx.loanapp.action;
+
+option java_outer_classname = "LoanAppActionHandler";
+
+service LoanAppServiceAction {
+
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc SubmitLoanApplication(api.SubmitCommand) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/loanapp/create",
+      body: "*"
+    };
+  }
+
+  rpc ExpireLoanApplication(api.DeclineCommand) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/loanapp/expire",
+      body: "*"
+    };
+  }
+
+  rpc subscribeApprovedEvent(loanapp.domain.Approved) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "loanapp"
+    };
+  }
+
+  rpc ignoreOtherEvents(google.protobuf.Any) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "loanapp"
+    };
+  }
+}
